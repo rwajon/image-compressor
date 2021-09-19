@@ -5,7 +5,13 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html"
+	"github.com/rwajon/images-compression/routes"
 )
 
 func index(c *fiber.Ctx) error {
@@ -26,11 +32,17 @@ func main() {
 
 	app.Static("/", "./public")
 
-	api := app.Group("/api", index)
-	v1 := api.Group("/v1", index)
+	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
+	app.Use(compress.New())
+	app.Use(cors.New())
+	app.Use(logger.New())
 
-	v1.Get("/", index)
+	api_v1 := app.Group("/api").Group("/v1")
+
 	app.Get("/", index)
+	app.Get("/monitor", monitor.New())
+
+	routes.Routes(api_v1)
 
 	log.Fatal(app.Listen(":3000"))
 }
