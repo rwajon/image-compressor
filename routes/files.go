@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/rwajon/images-compression/controllers"
+	"github.com/rwajon/image-compressor/controllers"
 )
 
 func Files(router fiber.Router) {

@@ -1,4 +1,4 @@
-module github.com/rwajon/images-compression
+module github.com/rwajon/image-compressor
 
 go 1.17
 

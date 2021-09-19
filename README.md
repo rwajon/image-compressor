@@ -1,3 +1,3 @@
-# images-compression
+# image-compressor
 
-Images compression REST API
+Images compressor REST API

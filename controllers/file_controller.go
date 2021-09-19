@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/rwajon/images-compression/helpers"
+	"github.com/rwajon/image-compressor/helpers"
 )
 
 type FileController struct {
