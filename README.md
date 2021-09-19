@@ -1,2 +1,3 @@
 # images-compression
-REST Images compression API
+
+Images compression REST API
