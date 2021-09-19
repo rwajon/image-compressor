@@ -11,13 +11,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html"
-	"github.com/rwajon/images-compression/routes"
+	"github.com/rwajon/image-compressor/routes"
 )
 
 func index(c *fiber.Ctx) error {
 	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
 	return c.Render("index", fiber.Map{
-		"title": "Images compression REST API 👋",
+		"title": "Image compressor REST API 👋",
 	})
 }
 
