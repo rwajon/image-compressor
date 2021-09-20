@@ -59,8 +59,13 @@ func (f FileController) UploadFiles(c *fiber.Ctx) error {
 	if err != nil {
 		panic(err)
 	}
+	options := map[string]interface{}{}
+	for _, value := range []string{"quality", "width", "height", "crop", "format"} {
+		options[value] = c.Query(value)
+	}
 
-	filename, err := helpers.CompressImage(buffer, 40, dir)
+	filename, err := helpers.CompressImage(buffer, dir, options)
+
 	if err != nil {
 		panic(err)
 	}
