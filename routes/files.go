@@ -7,10 +7,11 @@ import (
 	"github.com/rwajon/image-compressor/controllers"
 )
 
-func Files(router fiber.Router) {
+func filesRoutes(router fiber.Router) {
 	f := controllers.FileController{
-		BaseDir: "./uploaded_images",
+		BaseDir: "./uploaded_files",
 		Dir:     time.Now().Format("01-02-2006"), // MM-DD-YYYY
 	}
 	router.Get("/", f.ListFiles)
+	router.Post("/", f.UploadFiles)
 }

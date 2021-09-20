@@ -27,10 +27,14 @@ func main() {
 	engine.Delims("{{", "}}")
 
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:        engine,
+		Prefork:      true,
+		ServerHeader: "Fiber",
+		AppName:      "Image compressor REST API v1.0",
 	})
 
 	app.Static("/", "./public")
+	app.Static("/", "./uploaded_files")
 
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(compress.New())
