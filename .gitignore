@@ -18,4 +18,4 @@ tmp
 **/.DS_Store
 logs
 *.log
-**/uploaded_images/**
+**/uploaded_files/**
