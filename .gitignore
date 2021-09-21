@@ -18,5 +18,8 @@ tmp
 **/.DS_Store
 logs
 *.log
-**/uploaded_files/**
 **image_compressor**
+**/image_compressor
+**/image_compressor**
+build
+builds
