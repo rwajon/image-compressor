@@ -11,6 +11,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html"
+	"github.com/joho/godotenv"
+	"github.com/rwajon/image-compressor/config"
 	"github.com/rwajon/image-compressor/routes"
 )
 
@@ -22,7 +24,11 @@ func index(c *fiber.Ctx) error {
 }
 
 func main() {
-	engine := html.NewFileSystem(http.Dir("./views"), ".html")
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	config := config.Get()
+	engine := html.NewFileSystem(http.Dir("./public"), ".html")
 
 	engine.Delims("{{", "}}")
 
@@ -33,8 +39,8 @@ func main() {
 		AppName:      "Image compressor REST API v1.0",
 	})
 
-	app.Static("/", "./public")
-	app.Static("/", "./uploaded_files")
+	app.Static("/assets", "./public/assets")
+	app.Static("/", config.BaseDir)
 
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(compress.New())
@@ -45,8 +51,7 @@ func main() {
 
 	app.Get("/", index)
 	app.Get("/monitor", monitor.New())
-
 	routes.Routes(api_v1)
 
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":" + config.Port))
 }
