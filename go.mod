@@ -7,11 +7,11 @@ require (
 	github.com/gofiber/template v1.6.16
 	github.com/google/uuid v1.3.0
 	github.com/h2non/bimg v1.1.5
+	github.com/joho/godotenv v1.3.0
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.3 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.30.0 // indirect
