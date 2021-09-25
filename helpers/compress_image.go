@@ -9,37 +9,37 @@ import (
 	"github.com/h2non/bimg"
 )
 
-const DEFAULT_IMG_FORMAT string = "jpg"
+const DEFAULT_FORMAT string = "jpg"
 
 func getOptions(o bimg.Options, opts map[string]interface{}) bimg.Options {
-	for key, element := range opts {
-		if key == "quality" && element != "" {
-			if v, e := strconv.Atoi(fmt.Sprint(element)); e == nil {
+	for k, el := range opts {
+		if k == "quality" && el != "" {
+			if v, e := strconv.Atoi(fmt.Sprint(el)); e == nil {
 				o.Quality = v
 			}
 		}
-		if key == "width" && element != "" {
-			if v, e := strconv.Atoi(fmt.Sprint(element)); e == nil {
+		if k == "width" && el != "" {
+			if v, e := strconv.Atoi(fmt.Sprint(el)); e == nil {
 				o.Width = v
 			}
 		}
-		if key == "height" && element != "" {
-			if v, e := strconv.Atoi(fmt.Sprint(element)); e == nil {
+		if k == "height" && el != "" {
+			if v, e := strconv.Atoi(fmt.Sprint(el)); e == nil {
 				o.Height = v
 			}
 		}
-		if key == "crop" && element != "" {
-			if v, e := strconv.ParseBool(fmt.Sprint(element)); e == nil {
+		if k == "crop" && el != "" {
+			if v, e := strconv.ParseBool(fmt.Sprint(el)); e == nil {
 				o.Crop = v
 			}
 		}
-		if key == "format" && element != "" {
-			img_type := strings.ToUpper(fmt.Sprint(element))
-			if img_type == "WEBP" {
+		if k == "format" && el != "" {
+			imageType := strings.ToUpper(fmt.Sprint(el))
+			if imageType == "WEBP" {
 				o.Type = bimg.WEBP
-			} else if img_type == "PNG" {
+			} else if imageType == "PNG" {
 				o.Type = bimg.PNG
-			} else if img_type == "JPG" || img_type == "JPEG" {
+			} else if imageType == "JPG" || imageType == "JPEG" {
 				o.Type = bimg.JPEG
 			} else {
 				o.Type = bimg.JPEG
@@ -49,27 +49,27 @@ func getOptions(o bimg.Options, opts map[string]interface{}) bimg.Options {
 	return o
 }
 
-func CompressImage(buffer []byte, dirname string, opts map[string]interface{}) (string, error) {
+func CompressImage(buffer []byte, dirName string, opts map[string]interface{}) (string, error) {
 	options := getOptions(bimg.Options{}, opts)
-	img_extension := func() string {
+	ext := func() string {
 		if opts["format"] != "" && options.Type != 0 {
 			return fmt.Sprint(opts["format"])
 		}
-		return DEFAULT_IMG_FORMAT
+		return DEFAULT_FORMAT
 	}()
 
-	filename := strings.Replace(uuid.New().String(), "-", "", -1) + "." + img_extension
+	fileName := strings.Replace(uuid.New().String(), "-", "", -1) + "." + ext
 	img, err := bimg.NewImage(buffer).Convert(options.Type)
 
 	if err != nil {
-		return filename, err
+		return fileName, err
 	}
 	if img, err = bimg.NewImage(img).Process(options); err != nil {
-		return filename, err
+		return fileName, err
 	}
-	if err = bimg.Write(dirname+"/"+filename, img); err != nil {
-		return filename, err
+	if err = bimg.Write(dirName+"/"+fileName, img); err != nil {
+		return fileName, err
 	}
 
-	return filename, nil
+	return fileName, nil
 }

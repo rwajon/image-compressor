@@ -1,7 +1,10 @@
 package config
 
 import (
+	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -10,18 +13,21 @@ type Config struct {
 }
 
 func Get() Config {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	port := os.Getenv("PORT")
-	base_dir := os.Getenv("BASE_DIR")
+	baseDir := os.Getenv("BASE_DIR")
 
 	if port == "" {
 		port = "3000"
 	}
-	if base_dir == "" {
-		base_dir = "./image_compressor_uploaded_files"
+	if baseDir == "" {
+		baseDir = "./image_compressor_uploaded_files"
 	}
 
 	return Config{
 		Port:    port,
-		BaseDir: base_dir,
+		BaseDir: baseDir,
 	}
 }
