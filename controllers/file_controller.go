@@ -21,19 +21,19 @@ func (f FileController) ListFiles(c *fiber.Ctx) error {
 	helpers.CreateDir(dir)
 
 	files, err := ioutil.ReadDir(dir)
-	file_names := make([]string, 0)
+	fileNames := make([]string, 0)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, f := range files {
-		file_names = append(file_names, f.Name())
+		fileNames = append(fileNames, f.Name())
 	}
 	c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
 	res := fiber.Map{
 		"status": 200,
-		"files":  file_names,
+		"files":  fileNames,
 	}
 	return c.JSON(res)
 }
@@ -42,12 +42,12 @@ func (f FileController) UploadFiles(c *fiber.Ctx) error {
 	dir := f.BaseDir + "/" + f.Dir
 	helpers.CreateDir(dir)
 
-	fileheader, err := c.FormFile("file")
+	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		panic(err)
 	}
 
-	file, err := fileheader.Open()
+	file, err := fileHeader.Open()
 
 	if err != nil {
 		panic(err)

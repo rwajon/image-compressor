@@ -1,8 +1,16 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -11,47 +19,86 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html"
-	"github.com/joho/godotenv"
 	"github.com/rwajon/image-compressor/config"
 	"github.com/rwajon/image-compressor/routes"
 )
 
-func index(c *fiber.Ctx) error {
-	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-	return c.Render("index", fiber.Map{
-		"title": "Image compressor REST API 👋",
-	})
+func isPortOpened(port string) bool {
+	conn, err := net.DialTimeout("tcp", ":"+port, 5*time.Second)
+
+	if err != nil {
+		return false
+	}
+
+	if conn != nil {
+		conn.Close()
+		return true
+	}
+
+	return false
+}
+
+func isPortUsed(config *config.Config) {
+	for i := isPortOpened(config.Port); i; i = isPortOpened(config.Port) {
+		fmt.Print("Error: Port " + config.Port + ": address already in use \nEnter a new port: ")
+		text, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+		text = regexp.MustCompile(`[\r\n]`).ReplaceAllString(text, "")
+
+		if _, err := strconv.Atoi(text); err == nil {
+			os.Setenv("PORT", text)
+			config.Port = text
+		} else {
+			os.Exit(1)
+		}
+	}
+}
+
+func getCLIArgs(config *config.Config) {
+	for _, v := range os.Args {
+		if strings.Contains(v, "--port=") {
+			if port, err := strconv.Atoi(strings.Replace(v, "--port=", "", -1)); err == nil {
+				os.Setenv("PORT", strconv.Itoa(port))
+				config.Port = strconv.Itoa(port)
+			}
+		}
+		if strings.Contains(v, "--base_dir=") {
+			if baseDir := strings.Replace(v, "--base_dir=", "", -1); baseDir != "" {
+				os.Setenv("BASE_DIR", baseDir)
+				config.BaseDir = baseDir
+			}
+		}
+	}
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	appName := "Image compressor REST API"
 	config := config.Get()
-	engine := html.NewFileSystem(http.Dir("./public"), ".html")
+	engine := html.NewFileSystem(http.Dir("./public"), ".html").Delims("{{", "}}")
 
-	engine.Delims("{{", "}}")
+	getCLIArgs(&config)
+	isPortUsed(&config)
 
 	app := fiber.New(fiber.Config{
-		Views:        engine,
-		Prefork:      true,
-		ServerHeader: "Fiber",
-		AppName:      "Image compressor REST API v1.0",
+		Views:   engine,
+		Prefork: true,
+		AppName: appName + " v1.0",
 	})
 
-	app.Static("/assets", "./public/assets")
 	app.Static("/", config.BaseDir)
+	app.Static("/assets", "./public/assets")
 
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(compress.New())
 	app.Use(cors.New())
 	app.Use(logger.New())
 
-	api_v1 := app.Group("/api").Group("/v1")
-
-	app.Get("/", index)
+	app.Get("/", func(c *fiber.Ctx) error {
+		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
+		return c.Render("index", fiber.Map{"title": appName + " v1.0"})
+	})
 	app.Get("/monitor", monitor.New())
-	routes.Routes(api_v1)
+
+	routes.Routes(app.Group("/api").Group("/v1"))
 
 	log.Fatal(app.Listen(":" + config.Port))
 }
